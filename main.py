@@ -47,6 +47,7 @@ st.title("基金简易收益计算系统（Man发布，后续持续更新）")
 fund_code = st.text_input("请输入您购买的基金代码")
 start_purchase_date = st.date_input("请选择您的配置该基金的日期")
 finish_purchase_date = st.date_input("请选择您赎回该基金的日期，如果还没有赎回，则不选择,默认选择今天")
+button = st.button("点击查询")
 
 
 # 今年的天数
@@ -99,82 +100,87 @@ def year_on_year_growth(current_year_value ,last_year_value):
 # df_fund_list = pd.DataFrame(fund_list)
 #
 # st.dataframe(df_fund_list)
+if button and fund_code :
+
 
 # 调用接口数据
-fund_open_fund_info_em_df = ak.fund_open_fund_info_em(symbol=fund_code, indicator="单位净值走势")
+    fund_open_fund_info_em_df = ak.fund_open_fund_info_em(symbol=fund_code, indicator="单位净值走势")
 
-# 形成接口数据的dataframe
-df_bond_fund = pd.DataFrame(fund_open_fund_info_em_df)
+    # 形成接口数据的dataframe
+    df_bond_fund = pd.DataFrame(fund_open_fund_info_em_df)
 
-# st.dataframe(df_bond_fund)
+    # st.dataframe(df_bond_fund)
 
-# 设置用户选择的数据的dataframe
-df_bond_fund_chosen = df_bond_fund[(df_bond_fund["净值日期"] >= start_purchase_date) &
-                                   (df_bond_fund["净值日期"] <= finish_purchase_date)]
+    # 设置用户选择的数据的dataframe
+    df_bond_fund_chosen = df_bond_fund[(df_bond_fund["净值日期"] >= start_purchase_date) &
+                                       (df_bond_fund["净值日期"] <= finish_purchase_date)]
 
-st.dataframe(df_bond_fund_chosen)
+    st.dataframe(df_bond_fund_chosen)
 
-# st购买净值曲线图
-st.bar_chart(df_bond_fund_chosen, x="净值日期", y="日增长率",x_label="日期")
-# st.line_chart(df_bond_fund_chosen, x="净值日期", y="单位净值",x_label="日期", y_label="当日净值")
+    # st购买净值曲线图
+    st.bar_chart(df_bond_fund_chosen, x="净值日期", y="日增长率",x_label="日期")
+    # st.line_chart(df_bond_fund_chosen, x="净值日期", y="单位净值",x_label="日期", y_label="当日净值")
 
-# plt绘制的曲线图
-# fig, ax = sns.lineplot(x="净值日期",y="日增长率")
-# ax.plot(df_bond_fund_chosen)
-# st.pyplot(fig)
+    # plt绘制的曲线图
+    # fig, ax = sns.lineplot(x="净值日期",y="日增长率")
+    # ax.plot(df_bond_fund_chosen)
+    # st.pyplot(fig)
 
-# 今年和去年
-current_year = datetime.date.today().year
-last_year = datetime.date.today().year - 1
+    # 今年和去年
+    current_year = datetime.date.today().year
+    last_year = datetime.date.today().year - 1
 
-# 今年和去年的1月1日
-year_start_date = datetime.date(current_year, 1, 1)
-last_year_start_date = datetime.date(last_year, 1, 1)
+    # 今年和去年的1月1日
+    year_start_date = datetime.date(current_year, 1, 1)
+    last_year_start_date = datetime.date(last_year, 1, 1)
 
-# 去年的今天
-today_of_last_year = datetime.date(last_year,datetime.date.today().month,datetime.date.today().day)
+    # 去年的今天
+    today_of_last_year = datetime.date(last_year,datetime.date.today().month,datetime.date.today().day)
 
-# 今年和去年的同一时间净值dataframe
-df_bond_fund_current_year = df_bond_fund[df_bond_fund["净值日期"] >= year_start_date]
-df_bond_fund_last_year = df_bond_fund[(df_bond_fund["净值日期"] >= last_year_start_date) &
-                                      (df_bond_fund["净值日期"] <= today_of_last_year)]
+    # 今年和去年的同一时间净值dataframe
+    df_bond_fund_current_year = df_bond_fund[df_bond_fund["净值日期"] >= year_start_date]
+    df_bond_fund_last_year = df_bond_fund[(df_bond_fund["净值日期"] >= last_year_start_date) &
+                                          (df_bond_fund["净值日期"] <= today_of_last_year)]
 
-#
+    #
 
-# 今年和去年和总的收益
-current_earn_value = df_bond_fund_current_year.iloc[-1, 1] - df_bond_fund_current_year.iloc[0, 1]
-last_earn_value = df_bond_fund_last_year.iloc[-1, 1] - df_bond_fund_last_year.iloc[0, 1]
-total_earn_value = df_bond_fund_chosen.iloc[-1,1] - df_bond_fund_chosen.iloc[0, 1]
+    # 今年和去年和总的收益
+    current_earn_value = df_bond_fund_current_year.iloc[-1, 1] - df_bond_fund_current_year.iloc[0, 1]
+    last_earn_value = df_bond_fund_last_year.iloc[-1, 1] - df_bond_fund_last_year.iloc[0, 1]
+    total_earn_value = df_bond_fund_chosen.iloc[-1,1] - df_bond_fund_chosen.iloc[0, 1]
 
-# 年化收益率 = [（投资内收益 / 本金）/ 投资天数] *365 ×100%
-fund_current_year_rate = ((current_earn_value/df_bond_fund_current_year.iloc[0, 1])/days_this_year())*365*100
-fund_last_year_rate = ((last_earn_value/df_bond_fund_last_year.iloc[0, 1])/days_last_year())*365*100
+    # 年化收益率 = [（投资内收益 / 本金）/ 投资天数] *365 ×100%
+    fund_current_year_rate = ((current_earn_value/df_bond_fund_current_year.iloc[0, 1])/days_this_year())*365*100
+    fund_last_year_rate = ((last_earn_value/df_bond_fund_last_year.iloc[0, 1])/days_last_year())*365*100
 
-# 计算整体的收益年化率
-fund_total_year_rate = ((total_earn_value/df_bond_fund_chosen.iloc[0, 1])/(finish_purchase_date-start_purchase_date).days)*365*100
-# 收益同比增长率
+    # 计算整体的收益年化率
+    fund_total_year_rate = ((total_earn_value/df_bond_fund_chosen.iloc[0, 1])/(finish_purchase_date-start_purchase_date).days)*365*100
+    # 收益同比增长率
 
-earn_value_year_on_year_growth = year_on_year_growth(current_earn_value,last_earn_value)
+    earn_value_year_on_year_growth = year_on_year_growth(current_earn_value,last_earn_value)
 
-#计算整体的收益年化率
-
-
-# st.write(fund_current_year_rate)
-
-# st.write(df_bond_fund_current_year.loc[0, "单位净值"])
-
-# fund_increase_rate =
-
-# st.dataframe(df_bond_fund_current_year)
-
-# st.write(current_year)
+    #计算整体的收益年化率
 
 
-# 显示结果
-st.write(f"今年该基金的年化收益率为：{fund_current_year_rate:.2f}%")
-st.write(f"去年该基金同一时段的年化收益率为：{fund_last_year_rate:.2f}%")
-st.write(f"您购买的该基金整体年化收益率为：{fund_total_year_rate:.2f}%")
-st.write(f"该基金的收益同比增长为：{earn_value_year_on_year_growth:.2f}%")
+    # st.write(fund_current_year_rate)
+
+    # st.write(df_bond_fund_current_year.loc[0, "单位净值"])
+
+    # fund_increase_rate =
+
+    # st.dataframe(df_bond_fund_current_year)
+
+    # st.write(current_year)
+
+
+    # 显示结果
+    st.write(f"今年该基金的年化收益率为：{fund_current_year_rate:.2f}%")
+    st.write(f"去年该基金同一时段的年化收益率为：{fund_last_year_rate:.2f}%")
+    st.write(f"您购买的该基金整体年化收益率为：{fund_total_year_rate:.2f}%")
+    st.write(f"该基金的收益同比增长为：{earn_value_year_on_year_growth:.2f}%")
+
+else:
+    st.info("没有查询到对应的基金代码，请确认后重新输入")
 
 # #打印字典
 # st.write(df_fund_dict)
